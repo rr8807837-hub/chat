@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat</title>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+    <style>
+        body {
+            background-color: aqua;
+            font-family: Arial;
+        }
+
+        .box {
+            display: flex;
+            flex-direction: column;
+            margin: auto;
+            width: 300px;
+            height: 500px;
+            border: 1px solid black;
+            padding: 10px;
+            background: white;
+        }
+
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .sent {
+            align-self: flex-start;
+            background: lightblue;
+            padding: 5px 10px;
+            border-radius: 10px;
+        }
+
+        .received {
+            align-self: flex-end;
+            background: lightgreen;
+            padding: 5px 10px;
+            border-radius: 10px;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tbox {
+            border-radius: 20px;
+            padding: 10px;
+            flex: 1;
+        }
+
+        button {
+            border-radius: 20px;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2 style="text-align:center;">CHAT APP</h2>
+
+    <div id="chat" class="chat-area"></div>
+
+    <div class="input-area">
+        <input type="text" id="message" class="tbox" placeholder="Type message...">
+        <button id="send">Send</button>
+    </div>
+</div>
+
+<script>
+    const socket = io();
+
+    const messageInput = document.getElementById("message");
+    const sendBtn = document.getElementById("send");
+    const chat = document.getElementById("chat");
+
+    sendBtn.addEventListener("click", () => {
+        const msg = messageInput.value.trim();
+        if (!msg) return;
+
+        const data = {
+            message: msg,
+            timestamp: new Date().toLocaleTimeString()
+        };
+
+        socket.emit("send_message", data);
+
+        // Show own message (left, blue)
+        chat.innerHTML += `
+            <div class="sent">
+                ${msg} <br>
+                <small>${data.timestamp}</small>
+            </div>
+        `;
+
+        messageInput.value = "";
+    });
+
+    socket.on("receive_message", (data) => {
+        chat.innerHTML += `
+            <div class="received">
+                ${data.message} <br>
+                <small>${data.timestamp}</small>
+            </div>
+        `;
+    });
+</script>
+
+</body>
+</html>
