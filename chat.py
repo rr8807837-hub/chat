@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
+import os
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -14,4 +15,5 @@ def handle_send_message(data):
     emit("receive_message", data, broadcast=True, include_self=False)
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    port= int(os.environ.get("PORT",10000))
+    socketio.run(app, host="0.0.0.0",port=port)
